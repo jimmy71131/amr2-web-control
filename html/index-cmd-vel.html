@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Robot Control Interface</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 800px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  h1 {
+    color: #333;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .control-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px; /* 調整間距 */
+    margin-bottom: 20px;
+  }
+  .control-panel button {
+    padding: 20px; /* 調整按鈕內部填充 */
+    font-size: 18px; /* 調整字體大小 */
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 8px; /* 調整邊角圓角程度 */
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .control-panel button:active {
+    background: #0056b3;
+  }
+  .status, .speed-control {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .status p {
+    margin: 10px 0;
+  }
+  .speed-control {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .control input[type="range"] {
+    width: 150px; /* 調整滑動條寬度 */
+    margin: 10px 0;
+  }
+  .toggle-button {
+    width: 100%;
+    padding: 20px; /* 調整按鈕內部填充 */
+    font-size: 18px; /* 調整字體大小 */
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 8px; /* 調整邊角圓角程度 */
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-bottom: 20px; /* 增加底部間距 */
+  }
+  .toggle-button:active {
+    background: #218838;
+  }
+</style>
+<script type="text/javascript">
+// Connecting to ROS
+var ros = new ROSLIB.Ros({
+  url : 'ws://192.168.1.100:9090'  // 用伺服器的 IP 地址替換
+});
+
+ros.on('connection', function() {
+  console.log('Connected to websocket server.');
+});
+
+ros.on('error', function(error) {
+  console.error('Error connecting to websocket server: ', error);
+});
+
+ros.on('close', function() {
+  console.log('Connection to websocket server closed.');
+});
+
+// Publishing a Topic
+var cmdVel = new ROSLIB.Topic({
+  ros : ros,
+  name : '/cmd_vel',
+  messageType : 'geometry_msgs/Twist'
+});
+
+var linearSpeed = 0.1;
+var angularSpeed = 0.5;
+var isPublishing = false; // 全局控制開關
+
+function publishTwist(linearX, angularZ) {
+  if (isPublishing) {
+    var twist = new ROSLIB.Message({
+      linear : { x : linearX, y : 0, z : 0 },
+      angular : { x : 0, y : 0, z : angularZ }
+    });
+    console.log('Publishing twist:', twist);
+    cmdVel.publish(twist);
+  } else {
+    console.log('Publishing is disabled.');
+  }
+}
+
+// Event handlers for buttons
+function forwardLeft() { publishTwist(linearSpeed, angularSpeed); }
+function forward() { publishTwist(linearSpeed, 0); }
+function forwardRight() { publishTwist(linearSpeed, -angularSpeed); }
+function turnLeft() { publishTwist(0, angularSpeed); }
+function stop() { publishTwist(0, 0); }
+function turnRight() { publishTwist(0, -angularSpeed); }
+function backwardLeft() { publishTwist(-linearSpeed, angularSpeed); }
+function backward() { publishTwist(-linearSpeed, 0); }
+function backwardRight() { publishTwist(-linearSpeed, -angularSpeed); }
+
+// Control publishing
+function togglePublishing() {
+  isPublishing = !isPublishing;
+  document.getElementById('publishStatus').innerText = isPublishing ? 'Publishing Enabled' : 'Publishing Disabled';
+  document.getElementById('toggleButton').innerText = isPublishing ? 'Disable Publishing' : 'Enable Publishing';
+  console.log('Publishing is now', isPublishing ? 'enabled' : 'disabled');
+}
+
+// Subscribing to a Topic
+var listener = new ROSLIB.Topic({
+  ros : ros,
+  name : '/robot_state',
+  messageType : 'std_msgs/String'
+});
+
+listener.subscribe(function(message) {
+  document.getElementById('robot_state').innerText = 'Robot State: ' + message.data;
+});
+
+// Adjust speed
+function setLinearSpeed(speed) {
+  linearSpeed = parseFloat(speed);
+  document.getElementById('linearSpeedValue').innerText = speed;
+}
+
+function setAngularSpeed(speed) {
+  angularSpeed = parseFloat(speed);
+  document.getElementById('angularSpeedValue').innerText = speed;
+}
+</script>
+</head>
+<body>
+  <div class="container">
+    <h1>Robot Control Interface</h1>
+    <button id="toggleButton" class="toggle-button" onclick="togglePublishing()">Enable Publishing</button>
+    <div class="status">
+      <p id="publishStatus">Publishing Disabled</p>
+      <p id="robot_state">Robot State: Unknown</p>
+    </div>
+    <div class="speed-control">
+      <div class="control">
+        <label>Linear Speed: <span id="linearSpeedValue">0.1</span></label>
+        <input type="range" min="0" max="1" step="0.1" value="0.1" onchange="setLinearSpeed(this.value)" />
+      </div>
+      <div class="control">
+        <label>Angular Speed: <span id="angularSpeedValue">0.5</span></label>
+        <input type="range" min="0" max="1" step="0.1" value="0.5" onchange="setAngularSpeed(this.value)" />
+      </div>
+    </div>
+    <div class="control-panel">
+      <button onclick="forwardLeft()">Forward-Left</button>
+      <button onclick="forward()">Forward</button>
+      <button onclick="forwardRight()">Forward-Right</button>
+      <button onclick="turnLeft()">Turn-Left</button>
+      <button onclick="stop()">Stop</button>
+      <button onclick="turnRight()">Turn-Right</button>
+      <button onclick="backwardLeft()">Backward-Left</button>
+      <button onclick="backward()">Backward</button>
+      <button onclick="backwardRight()">Backward-Right</button>
+    </div>
+  </div>
+</body>
+</html>
