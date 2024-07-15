@@ -24,7 +24,7 @@ This project provides a simple web-based controller for devices like Android, iO
    ```sh
    cd /var/www/html
    ```
-2. Replace the existing HTML file with your web controller HTML file.
+2. Replace the existing HTML file with your web controller HTML file. You can find the example HTML file in the [GitHub repository](https://github.com/jimmy71131/amr2-web-control).
 
 3. Ensure the HTML file is set up correctly. You can find a guide and an example HTML file here.
 
@@ -40,3 +40,12 @@ For visualizing a map in your web controller, refer to the ROS 2D JS tutorial: V
 
 ## Basic ROS Functionality
 To understand the basic ROS functionalities and how to use roslibjs, check out the tutorial: Basic ROS Functionality.
+
+# Contact Information
+For any questions or further information, please contact:
+
+Name: jimmy chen
+
+Email: jimmy71131@gmail.com
+
+GitHub: https://github.com/jimmy71131
