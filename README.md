@@ -34,9 +34,9 @@ To verify that the web controller is functioning correctly, use the following RO
 
 You should see messages containing linear and angular velocity values when you interact with the web interface.
 
-## Additional Resources
-# Visualizing a Map
+# Additional Resources
+## Visualizing a Map
 For visualizing a map in your web controller, refer to the ROS 2D JS tutorial: Visualizing a Map.
 
-Basic ROS Functionality
+## Basic ROS Functionality
 To understand the basic ROS functionalities and how to use roslibjs, check out the tutorial: Basic ROS Functionality.
