@@ -1,27 +1,42 @@
-A html file to communicate with ros and a ros package to see the topic cmd_vel infomation
+# Web Controller for Devices (Android, iOS, Computer) with ROS Integration
 
-Step 1 
+This project provides a simple web-based controller for devices like Android, iOS, and computers to communicate with ROS. The web interface sends linear and angular velocity commands to the `/cmd_vel` topic. Follow the steps below to set up the server and test the functionality.
 
-$ sudo apt update && sudo apt install apache2
+## Step 1: Install Apache Web Server
 
-$ sudo ufw allow OpenSSH
+1. Update package lists and install Apache:
+   ```sh
+   sudo apt update && sudo apt install apache2
+   
+2. Allow OpenSSH and Apache through the firewall:
+   ```sh
+   sudo ufw allow OpenSSH
+   sudo ufw allow in "Apache Full"
+   sudo ufw enable
+   ```
+3. Check the status of Apache service:
+   ```sh
+   sudo service apache2 status
+   ```
+## Step 2: Deploy the HTML File
 
-$ sudo ufw allow in "Apache Full"
+1. Navigate to the Apache web directory:
+   ```sh
+   cd /var/www/html
+   ```
+2. Replace the existing HTML file with your web controller HTML file.
 
-$ sudo ufw enable
+3. Ensure the HTML file is set up correctly. You can find a guide and an example HTML file here.
 
-$ sudo service apache2 status
+## Testing
 
-Step 2
+To verify that the web controller is functioning correctly, use the following ROS command to echo messages from the /cmd_vel topic:
 
-$ cd /var/www/html
+You should see messages containing linear and angular velocity values when you interact with the web interface.
 
-replace html file
+## Additional Resources
+# Visualizing a Map
+For visualizing a map in your web controller, refer to the ROS 2D JS tutorial: Visualizing a Map.
 
-the step is from https://ui-code.com/archives/271
-
-# map
-http://wiki.ros.org/ros2djs/Tutorials/VisualizingAMap
-
-# cmd_vel
-http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality
+Basic ROS Functionality
+To understand the basic ROS functionalities and how to use roslibjs, check out the tutorial: Basic ROS Functionality.
